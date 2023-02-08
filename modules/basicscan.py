@@ -56,7 +56,7 @@ class BasicScanning:
 
     def scan_device_for_service(self):
         print("{}\033[01;37m Scanning {}\033[0m\n"
-              "\033[01;32m>>\033[01;37m Service Lookup: \033[01;33m{}\033[0m".format(self.dec.astk(), self.deviceaddr, self.srv_type))
+              "{}\033[01;37m Service Lookup: \033[01;33m{}\033[0m".format(self.dec.astk(), self.deviceaddr, self.dec.astk(), self.srv_type))
 
         smt = bluetooth.find_service(name=self.srv_type, address=self.deviceaddr)
 
