@@ -1,18 +1,22 @@
 import bluetooth
+from PyOBEX.client import Client
 from . import dec
 
 class BasicScanning:
 
-    def __init__(self, scan_for_services, file_to_write_to=""):
+    def __init__(self, device_address="", service_type="", file_to_write_to=""):
+        self.deviceaddr = device_address
+        self.srv_type = service_type
         self.of = file_to_write_to
-        self.srvscan= scan_for_services
+        self.port = ""
+        self.host = ""
+        self.name = ""
         self.dec = dec.Decor()
-        self.title_str = "{}\033[01;37m Basic Scan (M/1) Initialized...\033[0m\n" \
-                         "{}\033[01;37m Scanning for nearby (BT) Devices...\033[0m\n".format(self.dec.plus_bold(),
-                                                                                    self.dec.plus_bold())
 
     def init_basic_scan(self):
-        print(self.title_str)
+        print("{}\033[01;37m Basic Scan (M/1) Initialized...\033[0m\n" \
+                         "{}\033[01;37m Scanning for nearby (BT) Devices...\033[0m\n".format(self.dec.plus_bold(),
+                                                                                    self.dec.plus_bold()))
 
         # Init BT Proto
         try:
@@ -49,3 +53,28 @@ class BasicScanning:
 
         except bluetooth.BluetoothError as e:
             pass
+
+    def scan_device_for_service(self):
+        print("{}\033[01;37m Scanning {}\033[0m\n"
+              "\033[01;32m>>\033[01;37m Service Lookup: \033[01;33m{}\033[0m".format(self.dec.astk(), self.deviceaddr, self.srv_type))
+
+        smt = bluetooth.find_service(name=self.srv_type, address=self.deviceaddr)
+
+        # Check if the service exists on the device
+        if len(smt) == 0:
+            print("\n\033[31mService \"{}\" does not exist on address {}...\033[0m\n".format(self.srv_type, self.deviceaddr))
+            exit(1)
+        else:
+            fm = smt[0]
+            self.port = fm["port"]
+            self.name = fm["name"]
+            self.host = fm["host"]
+
+            print("{}\033[01;37m Checking connection to {} through {}...\n".format(self.dec.astk(), self.deviceaddr, self.srv_type))
+            client = Client(self.host, self.port)
+            try:
+                client.connect()
+                print("{}\033[01;37m Connection through {} was successful, {} is usable!".format(self.dec.plus_bold(), self.srv_type, self.srv_type))
+                client.disconnect()
+            except bluetooth.BluetoothError as e:
+                pass

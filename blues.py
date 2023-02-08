@@ -18,10 +18,16 @@ def main():
     g1.add_argument('-b', '--basic-scan', action="store_true", dest="init_basic_scan", help="Scan for nearby bluetooth enabled devices.")
     g1.add_argument('-s', '--give-services', action='store_true', dest="add_service_scanning", help="Add service scanning to basic scan.")
 
+    g2 = par.add_argument_group("Device Scanning", "Get information on a specific device.")
+    g2.add_argument('-2', '--device-mode', action="store_true", dest="mode_device_spec", help="Get information on a specific device.")
+    g2.add_argument('-a', '--address', type=str, dest="device_address", metavar="", help="Set a specific device address to probe.")
+    g2.add_argument('--srv', type=str, dest="device_spec_service", metavar="", help="See if a device contains a specific service (i.e: OBEX).")
+
+
     args = par.parse_args()
 
     # Obj. Init
-    basic = BasicScanning(scan_for_services=False)
+    basic = BasicScanning()
 
     # Mode 1
     if args.mode_basic_scan:
@@ -29,8 +35,13 @@ def main():
             basic.init_basic_scan()
 
         if args.add_service_scanning:
-            b = BasicScanning(scan_for_services=True)
+            b = BasicScanning()
             b.add_service_scanning(); exit(0)
+
+    # Mode 2
+    if args.mode_device_spec:
+        device = BasicScanning(device_address=args.device_address, service_type=args.device_spec_service)
+        device.scan_device_for_service(); exit(0)
 
 
 main()
